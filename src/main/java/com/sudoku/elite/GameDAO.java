@@ -9,6 +9,14 @@ import java.util.List;
  */
 public class GameDAO {
 
+    /**
+     * Persists the current state of a game.
+     * @param userId the owner of the game
+     * @param boardData serialized string representing the board
+     * @param difficulty difficulty level string
+     * @param score current game score
+     * @throws SQLException if a database error occurs
+     */
     public void saveGame(int userId, String boardData, String difficulty, int score) throws SQLException {
         String sql = "INSERT INTO games (user_id, board_data, difficulty, score) VALUES (?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -21,6 +29,12 @@ public class GameDAO {
         }
     }
 
+    /**
+     * Records a new score in the global rankings.
+     * @param userId the user who achieved the score
+     * @param score the numerical score
+     * @throws SQLException if a database error occurs
+     */
     public void registerRanking(int userId, int score) throws SQLException {
         String sql = "INSERT INTO rankings (user_id, score) VALUES (?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -31,6 +45,11 @@ public class GameDAO {
         }
     }
 
+    /**
+     * Retrieves the top 10 scores from the rankings table.
+     * @return a list of strings formatted as "username: score"
+     * @throws SQLException if a database error occurs
+     */
     public List<String> getTopRankings() throws SQLException {
         List<String> results = new ArrayList<>();
         String sql = "SELECT u.username, r.score FROM rankings r " +

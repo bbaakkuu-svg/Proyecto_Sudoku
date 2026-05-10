@@ -21,6 +21,14 @@ public class SudokuGenerator {
     public void generate(String difficulty) {
         sudoku.clear();
         fillBoard();
+        
+        // Save the solved board as the reference solution
+        for (int i = 0; i < Sudoku.SIZE; i++) {
+            for (int j = 0; j < Sudoku.SIZE; j++) {
+                sudoku.setSolutionValue(i, j, sudoku.getValue(i, j));
+            }
+        }
+        
         removeNumbers(difficulty);
     }
 

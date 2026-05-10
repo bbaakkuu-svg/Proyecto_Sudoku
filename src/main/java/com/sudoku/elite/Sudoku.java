@@ -9,10 +9,12 @@ public class Sudoku {
     public static final int SUBGRID_SIZE = 3;
     
     private int[][] board;
+    private int[][] solutionBoard;
     private boolean[][] fixedCells;
 
     public Sudoku() {
         this.board = new int[SIZE][SIZE];
+        this.solutionBoard = new int[SIZE][SIZE];
         this.fixedCells = new boolean[SIZE][SIZE];
     }
 
@@ -28,12 +30,12 @@ public class Sudoku {
         
         // Row check
         for (int i = 0; i < SIZE; i++) {
-            if (board[row][i] == value) return false;
+            if (i != col && board[row][i] == value) return false;
         }
         
         // Column check
         for (int i = 0; i < SIZE; i++) {
-            if (board[i][col] == value) return false;
+            if (i != row && board[i][col] == value) return false;
         }
         
         // Subgrid (3x3) check
@@ -42,7 +44,9 @@ public class Sudoku {
         
         for (int i = 0; i < SUBGRID_SIZE; i++) {
             for (int j = 0; j < SUBGRID_SIZE; j++) {
-                if (board[startRow + i][startCol + j] == value) return false;
+                int r = startRow + i;
+                int c = startCol + j;
+                if ((r != row || c != col) && board[r][c] == value) return false;
             }
         }
         
@@ -59,6 +63,14 @@ public class Sudoku {
 
     public int getValue(int row, int col) {
         return board[row][col];
+    }
+
+    public int getSolutionValue(int row, int col) {
+        return solutionBoard[row][col];
+    }
+
+    public void setSolutionValue(int row, int col, int value) {
+        solutionBoard[row][col] = value;
     }
 
     public void setBoard(int[][] board) {
@@ -81,15 +93,9 @@ public class Sudoku {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 int val = board[i][j];
-                if (val == 0) return false;
-                
-                // Temporarily clear to check validation
-                board[i][j] = 0;
-                if (!isValidMovement(i, j, val)) {
-                    board[i][j] = val;
+                if (val == 0 || !isValidMovement(i, j, val)) {
                     return false;
                 }
-                board[i][j] = val;
             }
         }
         return true;
@@ -99,6 +105,7 @@ public class Sudoku {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 board[i][j] = 0;
+                solutionBoard[i][j] = 0;
                 fixedCells[i][j] = false;
             }
         }
