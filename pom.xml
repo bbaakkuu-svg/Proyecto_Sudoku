@@ -46,6 +46,12 @@
             <version>2.2.220</version>
             <scope>test</scope>
         </dependency>
+        <!-- HikariCP for Connection Pooling -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.0.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -100,6 +106,15 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- Exec Maven Plugin for CLI execution -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>com.sudoku.elite.JuegoSudoku</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
