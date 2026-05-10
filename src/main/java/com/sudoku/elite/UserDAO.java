@@ -8,6 +8,13 @@ import java.util.Optional;
  */
 public class UserDAO {
     
+    /**
+     * Creates a new user in the database.
+     * @param username the unique username
+     * @param password the password (unhashed for this phase)
+     * @return the generated user ID, or -1 if failed
+     * @throws SQLException if a database error occurs
+     */
     public int createUser(String username, String password) throws SQLException {
         String sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -25,6 +32,13 @@ public class UserDAO {
         return -1;
     }
 
+    /**
+     * Authenticates a user and retrieves their ID.
+     * @param username the username
+     * @param password the password
+     * @return an Optional containing the user ID if authentication succeeds
+     * @throws SQLException if a database error occurs
+     */
     public Optional<Integer> login(String username, String password) throws SQLException {
         String sql = "SELECT id FROM users WHERE username = ? AND password_hash = ?";
         try (Connection conn = DatabaseConnection.getConnection();
