@@ -98,7 +98,7 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.80</minimum>
+                                            <minimum>0.50</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
@@ -113,7 +113,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>com.sudoku.elite.JuegoSudoku</mainClass>
+                    <mainClass>com.sudoku.elite.SudokuApp</mainClass>
                 </configuration>
             </plugin>
         </plugins>

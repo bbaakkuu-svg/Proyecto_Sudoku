@@ -5,7 +5,10 @@ package com.sudoku.elite;
  */
 public class SudokuApp {
     public static void main(String[] args) {
-        System.out.println("Sudoku Elite Engine Initialized");
+        System.out.println("SUDOKU ELITE - Starting UI Engine...");
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            new MainFrame().setVisible(true);
+        });
     }
 
     /**
