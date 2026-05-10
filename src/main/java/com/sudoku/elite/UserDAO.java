@@ -2,11 +2,24 @@ package com.sudoku.elite;
 
 import java.sql.*;
 import java.util.Optional;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 /**
  * Data Access Object for User management.
  */
 public class UserDAO {
+
+    private String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(password.getBytes());
+            return Base64.getEncoder().encodeToString(encodedhash);
+        } catch (NoSuchAlgorithmException e) {
+            return password; // Fallback
+        }
+    }
     
     /**
      * Creates a new user in the database.
@@ -20,7 +33,7 @@ public class UserDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, username);
-            stmt.setString(2, password); // Note: Should be hashed in production
+            stmt.setString(2, hashPassword(password)); 
             stmt.executeUpdate();
             
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
@@ -44,7 +57,7 @@ public class UserDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
-            stmt.setString(2, password);
+            stmt.setString(2, hashPassword(password));
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return Optional.of(rs.getInt("id"));
