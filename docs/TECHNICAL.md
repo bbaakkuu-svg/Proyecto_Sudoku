@@ -1,10 +1,13 @@
-# Technical Documentation - Sudoku Elite
-## Industrial Architecture & UML Vivo
+# Documentación Técnica - Sudoku Elite
 
-This document provides a deep dive into the architectural design of Sudoku Elite, adhering to the requirements of "Entornos de Desarrollo".
+Este documento detalla la arquitectura y las decisiones de diseño tomadas durante el desarrollo del proyecto Sudoku Elite.
 
-### 1. Class Diagram (Mermaid)
-The following diagram illustrates the relationship between the domain, persistence, and UI layers.
+## 🏛️ Arquitectura del Sistema
+
+La aplicación sigue una estructura modular para separar la lógica de negocio de la interfaz de usuario y la persistencia de datos.
+
+### 1. Diagrama de Clases
+El siguiente diagrama muestra la relación entre las capas del sistema (Dominio, Persistencia y UI).
 
 ```mermaid
 classDiagram
@@ -53,44 +56,22 @@ classDiagram
     UserDAO ..> DatabaseConnection
 ```
 
-### 2. Sequence Diagram: New Game Generation
-How the system reacts when a user requests a new game.
+### 2. Lógica de Generación (Backtracking)
+Para la generación de tableros, he implementado un algoritmo de **Backtracking**. El proceso es el siguiente:
+1. Se limpia el tablero.
+2. Se intenta rellenar cada celda con un número aleatorio del 1 al 9 que cumpla las reglas.
+3. Si el algoritmo llega a un punto muerto, retrocede (backtrack) y prueba una opción diferente.
+4. Finalmente, se eliminan números según la dificultad elegida para crear el puzzle.
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant UI as MainFrame
-    participant Gen as SudokuGenerator
-    participant Core as Sudoku
-    participant DB as GameDAO
+### 3. Gestión de la Interfaz (Multi-hilo)
+Debido a que la generación de tableros complejos puede tardar unos milisegundos, he utilizado **SwingWorker** para que el cálculo se realice en un hilo separado. Esto evita que la ventana se bloquee y permite mostrar un mensaje de carga al usuario.
 
-    User->>UI: Click "NEW GAME"
-    UI->>Gen: generate("medium")
-    Gen->>Core: clear()
-    Gen->>Gen: fillBoard() (Backtracking)
-    Gen->>Core: placeNumber()
-    Gen->>UI: updateBoard()
-    UI->>User: Display new puzzle
-```
+### 4. Seguridad de Datos
+Las contraseñas de los usuarios no se guardan en texto claro. He implementado una función de hash **SHA-256** en la capa DAO para asegurar que, incluso si la base de datos se viera comprometida, las credenciales originales estarían protegidas.
 
-### 3. State Diagram: Board Logic
-States of a single cell in the Sudoku grid.
-
-```mermaid
-stateDiagram-v2
-    [*] --> Empty
-    Empty --> Fixed: Generator (Initial Clue)
-    Empty --> UserEntry: User Input
-    UserEntry --> Empty: Clear
-    UserEntry --> UserEntry: Update Value
-    UserEntry --> Error: Invalid Move (Rule violation)
-    Error --> UserEntry: Correct Value
-    Fixed --> [*]
-```
-
-### 4. Technical Stack Summary
-- **Language**: Java 17
-- **Architecture**: MVC (Model-View-Controller) / DAO Pattern
-- **Persistence**: MySQL 8.0 with HikariCP Pooling
-- **Testing**: JUnit 5 + JaCoCo (Quality Gate 50-80%)
-- **CI/CD**: GitHub Actions (Build, Test, Javadoc, Coverage)
+## 🛠️ Tecnologías Utilizadas
+- **Java 17**: Lenguaje principal.
+- **Maven**: Gestión de dependencias y construcción.
+- **MySQL**: Base de datos relacional para usuarios y puntuaciones.
+- **HikariCP**: Pool de conexiones para mejorar el rendimiento de la BD.
+- **JUnit 5**: Pruebas unitarias para validar la lógica del motor.
