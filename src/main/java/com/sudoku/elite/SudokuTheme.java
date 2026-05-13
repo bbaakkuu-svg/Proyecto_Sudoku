@@ -41,4 +41,9 @@ public enum SudokuTheme {
         this.text = text;
         this.accent = accent;
     }
+
+    @Override
+    public String toString() {
+        return LanguageManager.getInstance().getString("theme." + this.name().toLowerCase());
+    }
 }
