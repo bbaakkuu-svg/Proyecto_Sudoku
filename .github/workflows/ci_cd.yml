@@ -1,0 +1,36 @@
+name: Java CI con Maven
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Configurar JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Compilar con Maven
+      run: mvn -B clean compile
+
+    - name: Ejecutar Pruebas Unitarias
+      run: mvn -B test
+
+    - name: Generar Reporte de Cobertura
+      run: mvn jacoco:report
+
+    - name: Guardar Artefactos de Prueba
+      uses: actions/upload-artifact@v3
+      with:
+        name: reporte-jacoco
+        path: target/site/jacoco
