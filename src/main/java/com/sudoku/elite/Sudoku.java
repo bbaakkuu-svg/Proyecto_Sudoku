@@ -55,8 +55,8 @@ public class Sudoku {
 
     public boolean placeNumber(int row, int col, int value) {
         if (fixedCells[row][col]) return false;
-        if (value != 0 && !isValidMovement(row, col, value)) return false;
-        
+        // We allow placing numbers that break rules to let the UI show error feedback,
+        // but the core logic still knows they are invalid via isValidMovement.
         board[row][col] = value;
         return true;
     }

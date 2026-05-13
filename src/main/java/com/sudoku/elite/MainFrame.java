@@ -14,6 +14,21 @@ public class MainFrame extends JFrame {
     private final GameDAO gameDAO;
     private int currentUserId = -1;
 
+    // UI Components that need localized text updates
+    private JLabel headerTitleLabel;
+    private JLabel themeLabel;
+    private JLabel difficultyLabel;
+    private JLabel languageLabel;
+    private JButton newGameBtn;
+    private JButton saveBtn;
+    private JButton rankingBtn;
+    private JButton undoBtn;
+    private JButton redoBtn;
+    private JButton hintBtn;
+    private JComboBox<String> diffSelect;
+    private JComboBox<String> langSelect;
+    private JComboBox<SudokuTheme> themeSelect;
+
     public MainFrame() {
         this.sudoku = new Sudoku();
         this.generator = new SudokuGenerator(sudoku);
@@ -22,7 +37,7 @@ public class MainFrame extends JFrame {
         this.commandManager.setOnUpdate(boardPanel::updateBoard);
         this.gameDAO = new GameDAO();
 
-        setTitle("SUDOKU ELITE - PREMIUM EDITION");
+        setTitle(LanguageManager.getInstance().getString("app.title"));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 700);
         setLocationRelativeTo(null);
@@ -43,10 +58,10 @@ public class MainFrame extends JFrame {
     private JPanel createHeader() {
         JPanel header = new JPanel(new FlowLayout(FlowLayout.CENTER));
         header.setBackground(new Color(25, 25, 25));
-        JLabel title = new JLabel("SUDOKU ELITE");
-        title.setFont(new Font("Inter", Font.BOLD, 32));
-        title.setForeground(new Color(100, 180, 255));
-        header.add(title);
+        headerTitleLabel = new JLabel(LanguageManager.getInstance().getString("header.title"));
+        headerTitleLabel.setFont(new Font("Inter", Font.BOLD, 32));
+        headerTitleLabel.setForeground(new Color(100, 180, 255));
+        header.add(headerTitleLabel);
         return header;
     }
 
@@ -57,24 +72,33 @@ public class MainFrame extends JFrame {
         side.setPreferredSize(new Dimension(250, 0));
         side.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JButton newGameBtn = createStyledButton("NEW GAME");
-        JButton saveBtn = createStyledButton("SAVE GAME");
-        JButton rankingBtn = createStyledButton("TOP RANKINGS");
+        newGameBtn = createStyledButton(LanguageManager.getInstance().getString("btn.new_game"));
+        saveBtn = createStyledButton(LanguageManager.getInstance().getString("btn.save_game"));
+        rankingBtn = createStyledButton(LanguageManager.getInstance().getString("btn.rankings"));
         
-        JComboBox<SudokuTheme> themeSelect = new JComboBox<>(SudokuTheme.values());
+        themeSelect = new JComboBox<>(SudokuTheme.values());
         themeSelect.setMaximumSize(new Dimension(200, 40));
         themeSelect.addActionListener(e -> {
             SudokuTheme theme = (SudokuTheme) themeSelect.getSelectedItem();
             applyGlobalTheme(theme);
         });
         
-        JComboBox<String> diffSelect = new JComboBox<>(new String[]{"Easy", "Medium", "Hard"});
+        diffSelect = new JComboBox<>(new String[]{
+            LanguageManager.getInstance().getString("diff.easy"),
+            LanguageManager.getInstance().getString("diff.medium"),
+            LanguageManager.getInstance().getString("diff.hard")
+        });
         diffSelect.setMaximumSize(new Dimension(200, 40));
 
         newGameBtn.addActionListener(e -> {
             newGameBtn.setEnabled(false);
-            newGameBtn.setText("GENERATING...");
-            String diff = diffSelect.getSelectedItem().toString().toLowerCase();
+            newGameBtn.setText(LanguageManager.getInstance().getString("btn.generating"));
+            
+            final String diff;
+            int idx = diffSelect.getSelectedIndex();
+            if (idx == 1) diff = "medium";
+            else if (idx == 2) diff = "hard";
+            else diff = "easy";
             
             SwingWorker<Void, Void> worker = new SwingWorker<>() {
                 @Override
@@ -88,7 +112,7 @@ public class MainFrame extends JFrame {
                     commandManager.clear();
                     boardPanel.updateBoard();
                     newGameBtn.setEnabled(true);
-                    newGameBtn.setText("NEW GAME");
+                    newGameBtn.setText(LanguageManager.getInstance().getString("btn.new_game"));
                 }
             };
             worker.execute();
@@ -97,15 +121,15 @@ public class MainFrame extends JFrame {
         saveBtn.addActionListener(e -> handleSave());
         rankingBtn.addActionListener(e -> showRankings());
 
-        JButton undoBtn = createStyledButton("UNDO (Ctrl+Z)");
-        JButton redoBtn = createStyledButton("REDO (Ctrl+Y)");
+        undoBtn = createStyledButton(LanguageManager.getInstance().getString("btn.undo"));
+        redoBtn = createStyledButton(LanguageManager.getInstance().getString("btn.redo"));
         undoBtn.setBackground(new Color(200, 200, 200));
         redoBtn.setBackground(new Color(200, 200, 200));
 
         undoBtn.addActionListener(e -> commandManager.undo());
         redoBtn.addActionListener(e -> commandManager.redo());
 
-        JButton hintBtn = createStyledButton("GET HINT");
+        hintBtn = createStyledButton(LanguageManager.getInstance().getString("btn.hint"));
         hintBtn.setBackground(new Color(255, 200, 100));
 
         hintBtn.addActionListener(e -> {
@@ -124,18 +148,39 @@ public class MainFrame extends JFrame {
                 int col = cell[1];
                 int val = sudoku.getSolutionValue(row, col);
                 commandManager.executeCommand(new MoveCommand(sudoku, row, col, val));
-                JOptionPane.showMessageDialog(this, "Analista IA: Sugiero " + val + " en [" + (row+1) + "," + (col+1) + "]", "IA HINT", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, 
+                    LanguageManager.getInstance().getString("msg.hint_text", val, (row+1), (col+1)), 
+                    LanguageManager.getInstance().getString("msg.hint_title"), 
+                    JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
-        side.add(new JLabel("THEME:"));
+        langSelect = new JComboBox<>(new String[]{"Español", "English"});
+        langSelect.setMaximumSize(new Dimension(200, 40));
+        langSelect.addActionListener(e -> {
+            String code = langSelect.getSelectedIndex() == 0 ? "es" : "en";
+            LanguageManager.getInstance().setLanguage(code);
+            updateTexts();
+        });
+
+        themeLabel = new JLabel(LanguageManager.getInstance().getString("side.theme"));
+        side.add(themeLabel);
         side.add(Box.createRigidArea(new Dimension(0, 5)));
         side.add(themeSelect);
         side.add(Box.createRigidArea(new Dimension(0, 20)));
-        side.add(new JLabel("DIFFICULTY:"));
+        
+        difficultyLabel = new JLabel(LanguageManager.getInstance().getString("side.difficulty"));
+        side.add(difficultyLabel);
         side.add(Box.createRigidArea(new Dimension(0, 5)));
         side.add(diffSelect);
         side.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        languageLabel = new JLabel(LanguageManager.getInstance().getString("side.language"));
+        side.add(languageLabel);
+        side.add(Box.createRigidArea(new Dimension(0, 5)));
+        side.add(langSelect);
+        side.add(Box.createRigidArea(new Dimension(0, 20)));
+
         side.add(newGameBtn);
         side.add(Box.createRigidArea(new Dimension(0, 10)));
         side.add(undoBtn);
@@ -185,7 +230,7 @@ public class MainFrame extends JFrame {
     }
 
     private void handleSave() {
-        JOptionPane.showMessageDialog(this, "Game saved to local vault (RA2 Persistence Active)");
+        JOptionPane.showMessageDialog(this, LanguageManager.getInstance().getString("msg.game_saved"));
         // Logic to call GameDAO would go here with currentUserId
     }
 
@@ -193,10 +238,44 @@ public class MainFrame extends JFrame {
         try {
             var tops = gameDAO.getTopRankings();
             String list = String.join("\n", tops);
-            JOptionPane.showMessageDialog(this, tops.isEmpty() ? "No scores yet." : list, "TOP 10 RANKINGS", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, 
+                tops.isEmpty() ? LanguageManager.getInstance().getString("msg.no_scores") : list, 
+                LanguageManager.getInstance().getString("msg.rankings_title"), 
+                JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error loading rankings: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, LanguageManager.getInstance().getString("msg.rank_error", e.getMessage()));
         }
+    }
+
+    private void updateTexts() {
+        LanguageManager lm = LanguageManager.getInstance();
+        setTitle(lm.getString("app.title"));
+        headerTitleLabel.setText(lm.getString("header.title"));
+        themeLabel.setText(lm.getString("side.theme"));
+        difficultyLabel.setText(lm.getString("side.difficulty"));
+        languageLabel.setText(lm.getString("side.language"));
+        newGameBtn.setText(lm.getString("btn.new_game"));
+        saveBtn.setText(lm.getString("btn.save_game"));
+        rankingBtn.setText(lm.getString("btn.rankings"));
+        undoBtn.setText(lm.getString("btn.undo"));
+        redoBtn.setText(lm.getString("btn.redo"));
+        hintBtn.setText(lm.getString("btn.hint"));
+        
+        // Update Difficulty ComboBox items
+        int selectedDiff = diffSelect.getSelectedIndex();
+        diffSelect.removeAllItems();
+        diffSelect.addItem(lm.getString("diff.easy"));
+        diffSelect.addItem(lm.getString("diff.medium"));
+        diffSelect.addItem(lm.getString("diff.hard"));
+        diffSelect.setSelectedIndex(selectedDiff);
+
+        // Update Theme ComboBox items
+        int selectedTheme = themeSelect.getSelectedIndex();
+        themeSelect.removeAllItems();
+        for (SudokuTheme t : SudokuTheme.values()) {
+            themeSelect.addItem(t);
+        }
+        themeSelect.setSelectedIndex(selectedTheme);
     }
 
     public static void main(String[] args) {

@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Audit Stress Test: 20 cycles of game generation and validation.
  */
-public class AuditExecutionTest {
+public class StressTest {
 
     @Test
     public void testStressGeneration() {
@@ -14,7 +14,7 @@ public class AuditExecutionTest {
         SudokuGenerator generator = new SudokuGenerator(sudoku);
         String[] difficulties = {"easy", "medium", "hard"};
 
-        System.out.println("Starting Audit Stress Test (20 cycles)...");
+        System.out.println("Starting Game Stress Test (20 cycles)...");
         for (int i = 1; i <= 20; i++) {
             String diff = difficulties[i % 3];
             long start = System.currentTimeMillis();
