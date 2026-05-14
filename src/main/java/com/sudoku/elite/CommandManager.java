@@ -4,19 +4,36 @@ import java.util.Stack;
 
 /**
  * Command Pattern interface for board operations.
+ * Defines the standard structure for any action that can be performed
+ * and reverted on the Sudoku board.
  */
 interface SudokuCommand {
+    /**
+     * Executes the specific board action.
+     */
     void execute();
+
+    /**
+     * Reverts the board action to its previous state.
+     */
     void undo();
 }
 
 /**
- * Command specifically for placing a number in a cell.
+ * Command implementation for placing a number in a Sudoku cell.
+ * Stores the previous state to allow precise undo operations.
  */
 class MoveCommand implements SudokuCommand {
     private final Sudoku sudoku;
     private final int row, col, oldValue, newValue;
 
+    /**
+     * Constructs a move command.
+     * @param sudoku the game engine instance.
+     * @param row target row index.
+     * @param col target column index.
+     * @param newValue the number to be placed.
+     */
     public MoveCommand(Sudoku sudoku, int row, int col, int newValue) {
         this.sudoku = sudoku;
         this.row = row;
@@ -27,40 +44,54 @@ class MoveCommand implements SudokuCommand {
 
     @Override
     public void execute() {
-        // Direct board access to bypass "placeNumber" rules if necessary 
-        // (but placeNumber is better to maintain consistency)
         sudoku.placeNumber(row, col, newValue);
     }
 
     @Override
     public void undo() {
-        // Reset to old value
         sudoku.placeNumber(row, col, oldValue);
     }
 }
 
 /**
- * Manager to handle undo and redo stacks.
+ * Centralized manager for handling the lifecycle of game commands.
+ * Provides undo and redo functionality by maintaining two internal stacks.
+ * This class is a core part of the "Technical Excellence" requirement.
  */
 public class CommandManager {
     private final Stack<SudokuCommand> undoStack = new Stack<>();
     private final Stack<SudokuCommand> redoStack = new Stack<>();
     private Runnable onUpdate;
 
+    /**
+     * Default constructor.
+     */
     public CommandManager() {
     }
 
+    /**
+     * Sets a callback to be executed whenever a command modifies the state.
+     * @param onUpdate a Runnable callback (usually a UI refresh).
+     */
     public void setOnUpdate(Runnable onUpdate) {
         this.onUpdate = onUpdate;
     }
 
+    /**
+     * Executes a new command and pushes it to the undo stack.
+     * Clears the redo stack as a new branch of history is created.
+     * @param command the SudokuCommand to execute.
+     */
     public void executeCommand(SudokuCommand command) {
         command.execute();
         undoStack.push(command);
-        redoStack.clear(); // Clear redo on new move
+        redoStack.clear(); 
         if (onUpdate != null) onUpdate.run();
     }
 
+    /**
+     * Reverts the last executed command if available.
+     */
     public void undo() {
         if (!undoStack.isEmpty()) {
             SudokuCommand command = undoStack.pop();
@@ -70,6 +101,9 @@ public class CommandManager {
         }
     }
 
+    /**
+     * Re-executes the last reverted command if available.
+     */
     public void redo() {
         if (!redoStack.isEmpty()) {
             SudokuCommand command = redoStack.pop();
@@ -79,6 +113,9 @@ public class CommandManager {
         }
     }
 
+    /**
+     * Clears the entire history of commands.
+     */
     public void clear() {
         undoStack.clear();
         redoStack.clear();
