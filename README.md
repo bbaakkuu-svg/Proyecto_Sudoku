@@ -26,6 +26,13 @@ mvn clean package
 java -jar target/sudoku-elite-app-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
-## 📚 Documentación Técnica
+## 📚 Documentación y Calidad (RA4, RA5, RA6)
 
-La documentación detallada sobre la arquitectura y el diseño de clases se encuentra en la carpeta `docs/`.
+El proyecto cuenta con una infraestructura de documentación técnica viva:
+
+- **Documentación Técnica (Markdown + Mermaid)**: [docs/TECHNICAL.md](docs/TECHNICAL.md) - Contiene los modelos UML de clases, actividades y estados.
+- **API Documentation (Javadoc)**: Disponible en las **GitHub Pages** del repositorio (autogenerado mediante CI/CD).
+- **Estado de la Documentación**: ![Docs Status](https://img.shields.io/badge/Documentation-Auto--Generated-brightgreen) ![UML](https://img.shields.io/badge/UML-Mermaid-blue)
+
+### Flujo de Trabajo
+Para este proyecto se ha seguido un flujo de **Conventional Commits** y un control de versiones basado en ramas de funcionalidad, garantizando la trazabilidad de cada cambio.
