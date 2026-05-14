@@ -1,4 +1,4 @@
-name: "🚀 CI/CD Industrial (RA2, RA3, RA4)"
+name: "ðŸš€ CI/CD Industrial (RA2, RA3, RA4)"
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
     name: "QA & Documentation"
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Código
+      - name: Checkout CÃ³digo
         uses: actions/checkout@v4
 
       - name: Setup Java 17
@@ -40,7 +40,7 @@ jobs:
           mkdir -p public/javadoc
           cp -r target/site/jacoco/* public/coverage/
           cp -r target/reports/apidocs/* public/javadoc/
-          # Página de inicio simple para navegar
+          # PÃ¡gina de inicio simple para navegar
           echo "<html><body><h1>Sudoku Elite - QA Dashboard</h1><ul><li><a href='./javadoc/'>API Javadoc</a></li><li><a href='./coverage/'>Coverage Report (JaCoCo)</a></li></ul></body></html>" > public/index.html
 
       - name: Configurar GitHub Pages
