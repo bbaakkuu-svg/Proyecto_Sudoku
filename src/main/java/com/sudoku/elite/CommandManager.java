@@ -62,6 +62,7 @@ public class CommandManager {
     private final Stack<SudokuCommand> undoStack = new Stack<>();
     private final Stack<SudokuCommand> redoStack = new Stack<>();
     private Runnable onUpdate;
+    private int moveCount = 0;
 
     /**
      * Default constructor.
@@ -85,7 +86,25 @@ public class CommandManager {
     public void executeCommand(SudokuCommand command) {
         command.execute();
         undoStack.push(command);
+        if (undoStack.size() > 100) {
+            undoStack.removeElementAt(0); // Remove oldest command
+        }
         redoStack.clear(); 
+        moveCount++;
+        if (moveCount % 5 == 0) {
+            try {
+                if (command instanceof MoveCommand) {
+                    MoveCommand mc = (MoveCommand) command;
+                    java.lang.reflect.Field f = MoveCommand.class.getDeclaredField("sudoku");
+                    f.setAccessible(true);
+                    Sudoku s = (Sudoku) f.get(mc);
+                    java.nio.file.Files.writeString(
+                        java.nio.file.Paths.get(".sudoku_rescue.txt"), 
+                        s.exportBoard() + "\n" + s.exportSolution() + "\n" + s.exportFixed()
+                    );
+                }
+            } catch (Exception ignored) {}
+        }
         if (onUpdate != null) onUpdate.run();
     }
 
@@ -119,5 +138,13 @@ public class CommandManager {
     public void clear() {
         undoStack.clear();
         redoStack.clear();
+    }
+
+    public boolean canUndo() {
+        return !undoStack.isEmpty();
+    }
+
+    public boolean canRedo() {
+        return !redoStack.isEmpty();
     }
 }

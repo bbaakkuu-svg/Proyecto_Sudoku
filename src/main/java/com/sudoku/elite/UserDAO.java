@@ -1,10 +1,8 @@
 package com.sudoku.elite;
 
+import org.mindrot.jbcrypt.BCrypt;
 import java.sql.*;
 import java.util.Optional;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 
 /**
  * Data Access Object for User management.
@@ -12,13 +10,7 @@ import java.util.Base64;
 public class UserDAO {
 
     private String hashPassword(String password) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] encodedhash = digest.digest(password.getBytes());
-            return Base64.getEncoder().encodeToString(encodedhash);
-        } catch (NoSuchAlgorithmException e) {
-            return password; // Fallback
-        }
+        return BCrypt.hashpw(password, BCrypt.gensalt());
     }
     
     /**
@@ -53,14 +45,16 @@ public class UserDAO {
      * @throws SQLException if a database error occurs
      */
     public Optional<Integer> login(String username, String password) throws SQLException {
-        String sql = "SELECT id FROM users WHERE username = ? AND password_hash = ?";
+        String sql = "SELECT id, password_hash FROM users WHERE username = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
-            stmt.setString(2, hashPassword(password));
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return Optional.of(rs.getInt("id"));
+                    String storedHash = rs.getString("password_hash");
+                    if (BCrypt.checkpw(password, storedHash)) {
+                        return Optional.of(rs.getInt("id"));
+                    }
                 }
             }
         }

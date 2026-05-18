@@ -5,13 +5,29 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 /**
  * Singleton Database Connection Manager with Connection Pooling.
  */
 public class DatabaseConnection {
     private static HikariDataSource dataSource;
+    private static boolean offlineMode = false;
 
     static {
+        Properties props = new Properties();
+        try (InputStream input = DatabaseConnection.class.getClassLoader().getResourceAsStream("config.properties")) {
+            if (input == null) {
+                System.err.println("Sorry, unable to find config.properties");
+            } else {
+                props.load(input);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
         HikariConfig config = new HikariConfig();
         
         // Detect environment (Testing with H2 or Production with MySQL)
@@ -23,18 +39,31 @@ public class DatabaseConnection {
             config.setUsername("sa");
             config.setPassword("");
         } else {
-            config.setJdbcUrl("jdbc:mysql://localhost:3306/sudoku_db?useSSL=false&serverTimezone=UTC");
-            config.setDriverClassName("com.mysql.cj.jdbc.Driver");
-            config.setUsername("root"); // Default for dev environment
-            config.setPassword("");     // Default for dev environment
+            config.setJdbcUrl(props.getProperty("db.url", "jdbc:mysql://localhost:3306/sudoku_db"));
+            config.setDriverClassName(props.getProperty("db.driver", "com.mysql.cj.jdbc.Driver"));
+            config.setUsername(props.getProperty("db.user", "root"));
+            config.setPassword(props.getProperty("db.password", ""));
         }
 
         config.setMaximumPoolSize(10);
+        config.setConnectionTimeout(3000); // 3 seconds timeout
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
-        dataSource = new HikariDataSource(config);
+        try {
+            dataSource = new HikariDataSource(config);
+        } catch (Exception e) {
+            System.err.println("Database connection failed. Falling back to offline mode (H2 in-memory).");
+            HikariConfig fallbackConfig = new HikariConfig();
+            fallbackConfig.setJdbcUrl("jdbc:h2:mem:sudoku_offline;DB_CLOSE_DELAY=-1;MODE=MySQL");
+            fallbackConfig.setDriverClassName("org.h2.Driver");
+            fallbackConfig.setUsername("sa");
+            fallbackConfig.setPassword("");
+            fallbackConfig.setMaximumPoolSize(5);
+            dataSource = new HikariDataSource(fallbackConfig);
+            offlineMode = true;
+        }
     }
 
     private DatabaseConnection() {}
@@ -47,5 +76,9 @@ public class DatabaseConnection {
         if (dataSource != null) {
             dataSource.close();
         }
+    }
+
+    public static boolean isOfflineMode() {
+        return offlineMode;
     }
 }

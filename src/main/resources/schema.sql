@@ -16,7 +16,9 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS games (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    board_data TEXT NOT NULL, -- Serialized board state
+    board_data TEXT NOT NULL,
+    solution_data TEXT NOT NULL,
+    fixed_data TEXT NOT NULL,
     difficulty VARCHAR(20) NOT NULL,
     score INT DEFAULT 0,
     is_completed BOOLEAN DEFAULT FALSE,

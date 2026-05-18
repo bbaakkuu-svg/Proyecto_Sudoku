@@ -63,20 +63,48 @@ public class SudokuGenerator {
     }
 
     private void removeNumbers(String difficulty) {
-        int targetEmptyCells = switch (difficulty.toLowerCase()) {
-            case "easy" -> 36;   // ~45 clues left
-            case "medium" -> 46; // ~35 clues left
-            case "hard" -> 56;   // ~25 clues left
-            default -> 40;
-        };
+        int targetEmptyCells;
+        if (difficulty.toLowerCase().startsWith("custom:")) {
+            try {
+                int clues = Integer.parseInt(difficulty.split(":")[1]);
+                targetEmptyCells = 81 - Math.max(17, Math.min(64, clues));
+            } catch (Exception e) {
+                targetEmptyCells = 40;
+            }
+        } else {
+            targetEmptyCells = switch (difficulty.toLowerCase()) {
+                case "easy" -> 36;   // ~45 clues left
+                case "medium" -> 46; // ~35 clues left
+                case "hard" -> 56;   // ~25 clues left
+                default -> 40;
+            };
+        }
+
+        // Create a list of all cell coordinates and shuffle them
+        java.util.List<int[]> cells = new java.util.ArrayList<>();
+        for (int i = 0; i < Sudoku.SIZE; i++) {
+            for (int j = 0; j < Sudoku.SIZE; j++) {
+                cells.add(new int[]{i, j});
+            }
+        }
+        java.util.Collections.shuffle(cells);
 
         int removed = 0;
-        while (removed < targetEmptyCells) {
-            int r = random.nextInt(Sudoku.SIZE);
-            int c = random.nextInt(Sudoku.SIZE);
-            if (sudoku.getValue(r, c) != 0) {
+        for (int[] cell : cells) {
+            if (removed >= targetEmptyCells) break;
+
+            int r = cell[0];
+            int c = cell[1];
+            int temp = sudoku.getValue(r, c);
+            
+            if (temp != 0) {
                 sudoku.placeNumber(r, c, 0);
-                removed++;
+                // Check if the puzzle still has a unique solution
+                if (sudoku.countSolutions() != 1) {
+                    sudoku.placeNumber(r, c, temp); // Put it back
+                } else {
+                    removed++;
+                }
             }
         }
 

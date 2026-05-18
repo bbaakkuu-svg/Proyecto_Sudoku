@@ -148,6 +148,71 @@ public class Sudoku {
     }
 
     /**
+     * Counts the number of solutions for the current board state.
+     * Used to ensure uniqueness during generation.
+     * @return the number of solutions found (capped at 2 for performance).
+     */
+    public int countSolutions() {
+        return solveAndCount(0);
+    }
+
+    private int solveAndCount(int index) {
+        if (index == SIZE * SIZE) return 1;
+
+        int row = index / SIZE;
+        int col = index % SIZE;
+
+        if (board[row][col] != 0) {
+            return solveAndCount(index + 1);
+        }
+
+        int count = 0;
+        for (int num = 1; num <= 9; num++) {
+            if (isValidMovement(row, col, num)) {
+                board[row][col] = num;
+                count += solveAndCount(index + 1);
+                board[row][col] = 0;
+                if (count > 1) return count; // Optimization: stop if not unique
+            }
+        }
+        return count;
+    }
+
+    public String exportBoard() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) sb.append(board[i][j]);
+        }
+        return sb.toString();
+    }
+
+    public String exportSolution() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) sb.append(solutionBoard[i][j]);
+        }
+        return sb.toString();
+    }
+
+    public String exportFixed() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) sb.append(fixedCells[i][j] ? "1" : "0");
+        }
+        return sb.toString();
+    }
+
+    public void importState(String boardStr, String solutionStr, String fixedStr) {
+        for (int i = 0; i < SIZE * SIZE; i++) {
+            int r = i / SIZE;
+            int c = i % SIZE;
+            board[r][c] = Character.getNumericValue(boardStr.charAt(i));
+            solutionBoard[r][c] = Character.getNumericValue(solutionStr.charAt(i));
+            fixedCells[r][c] = fixedStr.charAt(i) == '1';
+        }
+    }
+
+    /**
      * Clears all cells, solution, and fixed status.
      */
     public void clear() {

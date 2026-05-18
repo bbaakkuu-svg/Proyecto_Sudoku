@@ -15,6 +15,18 @@ classDiagram
         +placeNumber(row, col, val) bool
         +isResolved() bool
     }
+    class GameController {
+        -Sudoku sudoku
+        -SudokuGenerator generator
+        -CommandManager commandManager
+        -GameDAO gameDAO
+        -int currentUserId
+        -String currentUsername
+        +newGame(difficulty)
+        +saveGame(difficulty)
+        +loadGame() String
+        +getHint() int[]
+    }
     class SudokuGenerator {
         -Sudoku sudoku
         +generate(difficulty)
@@ -39,16 +51,17 @@ classDiagram
         +getTopRankings() List
     }
     class MainFrame {
-        -Sudoku sudoku
-        -CommandManager commandManager
+        -GameController controller
         -SudokuBoardPanel boardPanel
         +main(args)
     }
 
-    MainFrame --> Sudoku
-    MainFrame --> CommandManager
-    MainFrame --> SudokuGenerator
-    MainFrame --> GameDAO
+    MainFrame --> GameController
+    MainFrame --> SudokuBoardPanel
+    GameController --> Sudoku
+    GameController --> CommandManager
+    GameController --> SudokuGenerator
+    GameController --> GameDAO
     CommandManager o-- MoveCommand
     MoveCommand --> Sudoku
     SudokuGenerator --> Sudoku
