@@ -1,0 +1,8 @@
+﻿name: Feature Request
+description: Suggest an idea for Sudoku Elite
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thank you for suggesting an improvement to the project."

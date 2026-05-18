@@ -1,19 +1,19 @@
 # Set_Main_Protection.ps1
-# Configura reglas de protección para la rama 'main' (RA4.i)
+# Configura reglas de proteccion para la rama 'main' (RA4.i)
 . "$PSScriptRoot\..\00_Core_Loader.ps1"
 
-Write-WFLog "--- CONFIGURANDO PROTECCIÓN DE RAMA MAIN ---" "Cyan"
+Write-WFLog "--- CONFIGURANDO PROTECCION DE RAMA MAIN ---" "Cyan"
 
 $repo = "$($WFConfig.project.owner)/$($WFConfig.project.repo_name)"
 
-# Comprobar si gh está autenticado
+# Comprobar si gh esta autenticado
 gh auth status
 if ($LASTEXITCODE -ne 0) {
     Write-WFLog "Error: Debes estar autenticado en GitHub CLI (gh auth login)." "Red"
     exit
 }
 
-# Configurar protección mediante API de GitHub
+# Configurar proteccion mediante API de GitHub
 # Requiere PR para mergear y que los checks de CI pasen
 $jsonBody = @'
 {
@@ -35,7 +35,7 @@ Write-WFLog "Aplicando reglas a $repo/branches/main..." "Yellow"
 $jsonBody | gh api -X PUT "repos/$repo/branches/main/protection" --input -
 
 if ($LASTEXITCODE -eq 0) {
-    Write-WFLog "¡Protección de rama MAIN activada con éxito!" "Green"
+    Write-WFLog "Proteccion de rama MAIN activada con exito!" "Green"
 } else {
-    Write-WFLog "Error al aplicar protección. Verifica tus permisos o si el repo es público." "Red"
+    Write-WFLog "Error al aplicar proteccion. Verifica tus permisos o si el repo es publico." "Red"
 }
