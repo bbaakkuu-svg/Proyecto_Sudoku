@@ -11,27 +11,27 @@ if (-not (Test-Path $issuePath)) { New-Item -ItemType Directory -Path $issuePath
 Write-WFLog "--- GENERANDO PLANTILLAS DE REPOSITORIO PARA $($WFConfig.project.name) ---"
 
 $featureTemplate = @"
-name: Nueva Funcionalidad
-description: Sugiere una nueva idea para $($WFConfig.project.name)
-title: "[NUEVA TAREA] "
+name: Feature Request
+description: Suggest an idea for $($WFConfig.project.name)
+title: "[FEATURE] "
 labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
-      value: "Gracias por proponer una mejora para el proyecto."
+      value: "Thank you for suggesting an improvement to the project."
 "@
 $featureTemplate | Out-File (Join-Path $issuePath "feature.yml") -Encoding utf8
 
 $bugTemplate = @"
-name: Reporte de Error
-description: Avisa sobre algo que no funciona en $($WFConfig.project.name)
-title: "[ERROR] "
+name: Bug Report
+description: Create a report to help us improve $($WFConfig.project.name)
+title: "[BUG] "
 labels: ["bug"]
 body:
   - type: textarea
     id: error
     attributes:
-      label: Detalle del fallo detectado
+      label: Bug details and reproduction steps
 "@
 $bugTemplate | Out-File (Join-Path $issuePath "bug.yml") -Encoding utf8
 

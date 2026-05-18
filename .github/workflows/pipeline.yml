@@ -39,7 +39,7 @@ jobs:
           mkdir -p public/coverage
           mkdir -p public/javadoc
           cp -r target/site/jacoco/* public/coverage/
-          cp -r target/reports/apidocs/* public/javadoc/
+          cp -r target/site/apidocs/* public/javadoc/
           # Página de inicio Premium para el QA Dashboard
           cat <<EOF > public/index.html
           <!DOCTYPE html>

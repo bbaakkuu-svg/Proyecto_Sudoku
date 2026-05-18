@@ -19,7 +19,7 @@ $jsonBody = @'
 {
   "required_status_checks": {
     "strict": true,
-    "contexts": ["build-and-test"]
+    "contexts": ["QA & Documentation"]
   },
   "enforce_admins": true,
   "required_pull_request_reviews": {
