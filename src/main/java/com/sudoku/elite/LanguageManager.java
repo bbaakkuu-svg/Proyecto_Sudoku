@@ -1,12 +1,10 @@
 package com.sudoku.elite;
 
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.text.MessageFormat;
 
-/**
- * Singleton Manager to handle Application Internationalization (I18n).
- */
+/** Singleton Manager to handle Application Internationalization (I18n). */
 public class LanguageManager {
     private static LanguageManager instance;
     private ResourceBundle bundle;
@@ -14,7 +12,7 @@ public class LanguageManager {
 
     private LanguageManager() {
         // Default to Spanish as requested, or system default if preferred
-        setLanguage("es"); 
+        setLanguage("es");
     }
 
     public static synchronized LanguageManager getInstance() {

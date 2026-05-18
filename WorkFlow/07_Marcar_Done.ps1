@@ -22,6 +22,26 @@ try {
         }
     }
     Write-WFLog "Estado de hitos sincronizado." "Green"
+
+    Write-WFLog "--- AUTO-PRUNE: LIMPIEZA DE RAMA LOCAL ---" "Cyan"
+    $currentBranch = git branch --show-current
+    $developBranch = $WFConfig.git_flow.develop_branch
+    
+    if ($currentBranch -ne $developBranch -and $currentBranch -ne $WFConfig.git_flow.main_branch) {
+        Write-WFLog "Cambiando a rama $developBranch y actualizando..." "Yellow"
+        git checkout $developBranch
+        git pull origin $developBranch
+        
+        Write-WFLog "Intentando eliminar la rama local $currentBranch..." "Yellow"
+        git branch -d $currentBranch
+        if ($LASTEXITCODE -eq 0) {
+            Write-WFLog "Rama local '$currentBranch' eliminada con exito." "Green"
+        } else {
+            Write-WFLog "Atencion: No se pudo eliminar la rama '$currentBranch' (quizas no esta completamente fusionada en el servidor local)." "Red"
+        }
+    } else {
+        Write-WFLog "Estas en la rama principal/develop ($currentBranch), no hay rama aislada que limpiar." "Gray"
+    }
 } catch {
     Write-WFLog "Fallo en la comunicación con GitHub CLI." "Red"
 }

@@ -3,25 +3,20 @@ package com.sudoku.elite;
 import java.util.Stack;
 
 /**
- * Command Pattern interface for board operations.
- * Defines the standard structure for any action that can be performed
- * and reverted on the Sudoku board.
+ * Command Pattern interface for board operations. Defines the standard structure for any action
+ * that can be performed and reverted on the Sudoku board.
  */
 interface SudokuCommand {
-    /**
-     * Executes the specific board action.
-     */
+    /** Executes the specific board action. */
     void execute();
 
-    /**
-     * Reverts the board action to its previous state.
-     */
+    /** Reverts the board action to its previous state. */
     void undo();
 }
 
 /**
- * Command implementation for placing a number in a Sudoku cell.
- * Stores the previous state to allow precise undo operations.
+ * Command implementation for placing a number in a Sudoku cell. Stores the previous state to allow
+ * precise undo operations.
  */
 class MoveCommand implements SudokuCommand {
     private final Sudoku sudoku;
@@ -29,6 +24,7 @@ class MoveCommand implements SudokuCommand {
 
     /**
      * Constructs a move command.
+     *
      * @param sudoku the game engine instance.
      * @param row target row index.
      * @param col target column index.
@@ -54,9 +50,9 @@ class MoveCommand implements SudokuCommand {
 }
 
 /**
- * Centralized manager for handling the lifecycle of game commands.
- * Provides undo and redo functionality by maintaining two internal stacks.
- * This class is a core part of the "Technical Excellence" requirement.
+ * Centralized manager for handling the lifecycle of game commands. Provides undo and redo
+ * functionality by maintaining two internal stacks. This class is a core part of the "Technical
+ * Excellence" requirement.
  */
 public class CommandManager {
     private final Stack<SudokuCommand> undoStack = new Stack<>();
@@ -64,14 +60,12 @@ public class CommandManager {
     private Runnable onUpdate;
     private int moveCount = 0;
 
-    /**
-     * Default constructor.
-     */
-    public CommandManager() {
-    }
+    /** Default constructor. */
+    public CommandManager() {}
 
     /**
      * Sets a callback to be executed whenever a command modifies the state.
+     *
      * @param onUpdate a Runnable callback (usually a UI refresh).
      */
     public void setOnUpdate(Runnable onUpdate) {
@@ -79,8 +73,9 @@ public class CommandManager {
     }
 
     /**
-     * Executes a new command and pushes it to the undo stack.
-     * Clears the redo stack as a new branch of history is created.
+     * Executes a new command and pushes it to the undo stack. Clears the redo stack as a new branch
+     * of history is created.
+     *
      * @param command the SudokuCommand to execute.
      */
     public void executeCommand(SudokuCommand command) {
@@ -89,7 +84,7 @@ public class CommandManager {
         if (undoStack.size() > 100) {
             undoStack.removeElementAt(0); // Remove oldest command
         }
-        redoStack.clear(); 
+        redoStack.clear();
         moveCount++;
         if (moveCount % 5 == 0) {
             try {
@@ -99,18 +94,16 @@ public class CommandManager {
                     f.setAccessible(true);
                     Sudoku s = (Sudoku) f.get(mc);
                     java.nio.file.Files.writeString(
-                        java.nio.file.Paths.get(".sudoku_rescue.txt"), 
-                        s.exportBoard() + "\n" + s.exportSolution() + "\n" + s.exportFixed()
-                    );
+                            java.nio.file.Paths.get(".sudoku_rescue.txt"),
+                            s.exportBoard() + "\n" + s.exportSolution() + "\n" + s.exportFixed());
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         if (onUpdate != null) onUpdate.run();
     }
 
-    /**
-     * Reverts the last executed command if available.
-     */
+    /** Reverts the last executed command if available. */
     public void undo() {
         if (!undoStack.isEmpty()) {
             SudokuCommand command = undoStack.pop();
@@ -120,9 +113,7 @@ public class CommandManager {
         }
     }
 
-    /**
-     * Re-executes the last reverted command if available.
-     */
+    /** Re-executes the last reverted command if available. */
     public void redo() {
         if (!redoStack.isEmpty()) {
             SudokuCommand command = redoStack.pop();
@@ -132,9 +123,7 @@ public class CommandManager {
         }
     }
 
-    /**
-     * Clears the entire history of commands.
-     */
+    /** Clears the entire history of commands. */
     public void clear() {
         undoStack.clear();
         redoStack.clear();

@@ -1,20 +1,19 @@
 package com.sudoku.elite;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Tests for the SudokuGenerator.
- */
+import org.junit.jupiter.api.Test;
+
+/** Tests for the SudokuGenerator. */
 public class SudokuGeneratorTest {
 
     @Test
     public void testGenerationEasy() {
         Sudoku sudoku = new Sudoku();
         SudokuGenerator generator = new SudokuGenerator(sudoku);
-        
+
         generator.generate("easy");
-        
+
         int filledCount = 0;
         for (int i = 0; i < Sudoku.SIZE; i++) {
             for (int j = 0; j < Sudoku.SIZE; j++) {
@@ -24,9 +23,10 @@ public class SudokuGeneratorTest {
                 }
             }
         }
-        
+
         // Easy is roughly 45 clues (81 - 36)
-        assertTrue(filledCount >= 40 && filledCount <= 50, "Clue count for easy should be around 45");
+        assertTrue(
+                filledCount >= 40 && filledCount <= 50, "Clue count for easy should be around 45");
     }
 
     @Test
@@ -34,7 +34,7 @@ public class SudokuGeneratorTest {
         Sudoku sudoku = new Sudoku();
         SudokuGenerator generator = new SudokuGenerator(sudoku);
         generator.generate("medium");
-        
+
         int filledCount = 0;
         for (int i = 0; i < Sudoku.SIZE; i++) {
             for (int j = 0; j < Sudoku.SIZE; j++) {
@@ -49,7 +49,7 @@ public class SudokuGeneratorTest {
         Sudoku sudoku = new Sudoku();
         SudokuGenerator generator = new SudokuGenerator(sudoku);
         generator.generate("unknown"); // Should hit default case
-        
+
         int filledCount = 0;
         for (int i = 0; i < Sudoku.SIZE; i++) {
             for (int j = 0; j < Sudoku.SIZE; j++) {

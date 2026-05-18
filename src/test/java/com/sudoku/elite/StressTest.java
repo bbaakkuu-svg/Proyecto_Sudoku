@@ -1,11 +1,10 @@
 package com.sudoku.elite;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Audit Stress Test: 20 cycles of game generation and validation.
- */
+import org.junit.jupiter.api.Test;
+
+/** Audit Stress Test: 20 cycles of game generation and validation. */
 public class StressTest {
 
     @Test
@@ -20,9 +19,10 @@ public class StressTest {
             long start = System.currentTimeMillis();
             generator.generate(diff);
             long end = System.currentTimeMillis();
-            
+
             assertTrue(isValidBoard(sudoku), "Cycle " + i + " generated an invalid board!");
-            System.out.println("Cycle " + i + " [" + diff + "] - Time: " + (end - start) + "ms - SUCCESS");
+            System.out.println(
+                    "Cycle " + i + " [" + diff + "] - Time: " + (end - start) + "ms - SUCCESS");
         }
     }
 

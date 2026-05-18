@@ -2,9 +2,7 @@ package com.sudoku.elite;
 
 import java.util.Scanner;
 
-/**
- * Console-based game controller for Sudoku.
- */
+/** Console-based game controller for Sudoku. */
 public class JuegoSudoku {
     private final Sudoku sudoku;
     private final SudokuGenerator generator;
@@ -25,23 +23,23 @@ public class JuegoSudoku {
         System.out.print("Select difficulty (easy, medium, hard): ");
         if (!scanner.hasNextLine()) return;
         String diff = scanner.nextLine();
-        
+
         generator.generate(diff);
-        
+
         while (!sudoku.isResolved()) {
             displayBoard();
             System.out.println("Enter your move (row col value) or 'quit': ");
             if (!scanner.hasNextLine()) break;
             String input = scanner.nextLine();
             if (input.equalsIgnoreCase("quit")) break;
-            
+
             String[] parts = input.split(" ");
             if (parts.length == 3) {
                 try {
                     int r = Integer.parseInt(parts[0]);
                     int c = Integer.parseInt(parts[1]);
                     int v = Integer.parseInt(parts[2]);
-                    
+
                     if (!sudoku.placeNumber(r, c, v)) {
                         System.out.println("[ERROR] Invalid move or fixed cell!");
                     }
@@ -50,7 +48,7 @@ public class JuegoSudoku {
                 }
             }
         }
-        
+
         if (sudoku.isResolved()) {
             displayBoard();
             System.out.println("CONGRATULATIONS! You solved the Sudoku.");

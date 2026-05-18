@@ -2,9 +2,7 @@ package com.sudoku.elite;
 
 import java.util.Random;
 
-/**
- * Handles the generation of Sudoku boards using backtracking.
- */
+/** Handles the generation of Sudoku boards using backtracking. */
 public class SudokuGenerator {
     private final Sudoku sudoku;
     private final Random random;
@@ -16,19 +14,20 @@ public class SudokuGenerator {
 
     /**
      * Generates a new valid board according to difficulty.
+     *
      * @param difficulty "easy", "medium", or "hard"
      */
     public void generate(String difficulty) {
         sudoku.clear();
         fillBoard();
-        
+
         // Save the solved board as the reference solution
         for (int i = 0; i < Sudoku.SIZE; i++) {
             for (int j = 0; j < Sudoku.SIZE; j++) {
                 sudoku.setSolutionValue(i, j, sudoku.getValue(i, j));
             }
         }
-        
+
         removeNumbers(difficulty);
     }
 
@@ -72,19 +71,20 @@ public class SudokuGenerator {
                 targetEmptyCells = 40;
             }
         } else {
-            targetEmptyCells = switch (difficulty.toLowerCase()) {
-                case "easy" -> 36;   // ~45 clues left
-                case "medium" -> 46; // ~35 clues left
-                case "hard" -> 56;   // ~25 clues left
-                default -> 40;
-            };
+            targetEmptyCells =
+                    switch (difficulty.toLowerCase()) {
+                        case "easy" -> 36; // ~45 clues left
+                        case "medium" -> 46; // ~35 clues left
+                        case "hard" -> 56; // ~25 clues left
+                        default -> 40;
+                    };
         }
 
         // Create a list of all cell coordinates and shuffle them
         java.util.List<int[]> cells = new java.util.ArrayList<>();
         for (int i = 0; i < Sudoku.SIZE; i++) {
             for (int j = 0; j < Sudoku.SIZE; j++) {
-                cells.add(new int[]{i, j});
+                cells.add(new int[] {i, j});
             }
         }
         java.util.Collections.shuffle(cells);
@@ -96,7 +96,7 @@ public class SudokuGenerator {
             int r = cell[0];
             int c = cell[1];
             int temp = sudoku.getValue(r, c);
-            
+
             if (temp != 0) {
                 sudoku.placeNumber(r, c, 0);
                 // Check if the puzzle still has a unique solution

@@ -1,11 +1,10 @@
 package com.sudoku.elite;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for SudokuApp.
- */
+import org.junit.jupiter.api.Test;
+
+/** Unit tests for SudokuApp. */
 public class SudokuAppTest {
 
     @Test
@@ -18,7 +17,7 @@ public class SudokuAppTest {
     public void testMain() {
         // Testing main method - Handling HeadlessException for CI/CD environments
         try {
-            SudokuApp.main(new String[]{});
+            SudokuApp.main(new String[] {});
         } catch (java.awt.HeadlessException e) {
             System.out.println("Headless environment detected, UI execution skipped in test.");
         }

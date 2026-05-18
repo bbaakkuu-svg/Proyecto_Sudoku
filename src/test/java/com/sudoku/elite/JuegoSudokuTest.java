@@ -1,13 +1,12 @@
 package com.sudoku.elite;
 
-import org.junit.jupiter.api.Test;
-import java.util.Scanner;
-import java.io.ByteArrayInputStream;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Tests for JuegoSudoku CLI.
- */
+import java.io.ByteArrayInputStream;
+import java.util.Scanner;
+import org.junit.jupiter.api.Test;
+
+/** Tests for JuegoSudoku CLI. */
 public class JuegoSudokuTest {
 
     @Test
@@ -15,7 +14,7 @@ public class JuegoSudokuTest {
         // Simulate "easy" then "quit"
         String input = "easy\nquit\n";
         Scanner scanner = new Scanner(new ByteArrayInputStream(input.getBytes()));
-        
+
         JuegoSudoku game = new JuegoSudoku(scanner);
         assertDoesNotThrow(game::start);
     }
@@ -25,7 +24,7 @@ public class JuegoSudokuTest {
         // Simulate "easy", then invalid input, then "quit"
         String input = "easy\ninvalid\nquit\n";
         Scanner scanner = new Scanner(new ByteArrayInputStream(input.getBytes()));
-        
+
         JuegoSudoku game = new JuegoSudoku(scanner);
         assertDoesNotThrow(game::start);
     }

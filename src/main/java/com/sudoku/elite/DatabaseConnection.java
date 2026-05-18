@@ -2,23 +2,23 @@ package com.sudoku.elite;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 
-/**
- * Singleton Database Connection Manager with Connection Pooling.
- */
+/** Singleton Database Connection Manager with Connection Pooling. */
 public class DatabaseConnection {
     private static HikariDataSource dataSource;
     private static boolean offlineMode = false;
 
     static {
         Properties props = new Properties();
-        try (InputStream input = DatabaseConnection.class.getClassLoader().getResourceAsStream("config.properties")) {
+        try (InputStream input =
+                DatabaseConnection.class
+                        .getClassLoader()
+                        .getResourceAsStream("config.properties")) {
             if (input == null) {
                 System.err.println("Sorry, unable to find config.properties");
             } else {
@@ -29,10 +29,10 @@ public class DatabaseConnection {
         }
 
         HikariConfig config = new HikariConfig();
-        
+
         // Detect environment (Testing with H2 or Production with MySQL)
         String useH2 = System.getProperty("useH2", "false");
-        
+
         if (Boolean.parseBoolean(useH2)) {
             config.setJdbcUrl("jdbc:h2:mem:sudoku_db;DB_CLOSE_DELAY=-1;MODE=MySQL");
             config.setDriverClassName("org.h2.Driver");
@@ -54,7 +54,8 @@ public class DatabaseConnection {
         try {
             dataSource = new HikariDataSource(config);
         } catch (Exception e) {
-            System.err.println("Database connection failed. Falling back to offline mode (H2 in-memory).");
+            System.err.println(
+                    "Database connection failed. Falling back to offline mode (H2 in-memory).");
             HikariConfig fallbackConfig = new HikariConfig();
             fallbackConfig.setJdbcUrl("jdbc:h2:mem:sudoku_offline;DB_CLOSE_DELAY=-1;MODE=MySQL");
             fallbackConfig.setDriverClassName("org.h2.Driver");

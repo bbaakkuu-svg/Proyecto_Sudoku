@@ -1,23 +1,22 @@
 package com.sudoku.elite;
 
 /**
- * Core Sudoku engine representing the board and its validation rules.
- * This class handles the 9x9 matrix, stores the solution for hints,
- * and identifies fixed cells generated at the start of a puzzle.
+ * Core Sudoku engine representing the board and its validation rules. This class handles the 9x9
+ * matrix, stores the solution for hints, and identifies fixed cells generated at the start of a
+ * puzzle.
  */
 public class Sudoku {
     /** The dimension of the Sudoku board (9x9). */
     public static final int SIZE = 9;
+
     /** The dimension of each subgrid (3x3). */
     public static final int SUBGRID_SIZE = 3;
-    
+
     private int[][] board;
     private int[][] solutionBoard;
     private boolean[][] fixedCells;
 
-    /**
-     * Initializes an empty Sudoku board with zero values and no fixed cells.
-     */
+    /** Initializes an empty Sudoku board with zero values and no fixed cells. */
     public Sudoku() {
         this.board = new int[SIZE][SIZE];
         this.solutionBoard = new int[SIZE][SIZE];
@@ -25,8 +24,9 @@ public class Sudoku {
     }
 
     /**
-     * Checks if placing a value in a specific cell is valid according to Sudoku rules.
-     * Rules checked: unique in row, unique in column, and unique in 3x3 subgrid.
+     * Checks if placing a value in a specific cell is valid according to Sudoku rules. Rules
+     * checked: unique in row, unique in column, and unique in 3x3 subgrid.
+     *
      * @param row row index (0-8)
      * @param col column index (0-8)
      * @param value value to place (1-9)
@@ -34,21 +34,21 @@ public class Sudoku {
      */
     public boolean isValidMovement(int row, int col, int value) {
         if (value < 1 || value > 9) return false;
-        
+
         // Row check
         for (int i = 0; i < SIZE; i++) {
             if (i != col && board[row][i] == value) return false;
         }
-        
+
         // Column check
         for (int i = 0; i < SIZE; i++) {
             if (i != row && board[i][col] == value) return false;
         }
-        
+
         // Subgrid (3x3) check
         int startRow = (row / SUBGRID_SIZE) * SUBGRID_SIZE;
         int startCol = (col / SUBGRID_SIZE) * SUBGRID_SIZE;
-        
+
         for (int i = 0; i < SUBGRID_SIZE; i++) {
             for (int j = 0; j < SUBGRID_SIZE; j++) {
                 int r = startRow + i;
@@ -56,16 +56,18 @@ public class Sudoku {
                 if ((r != row || c != col) && board[r][c] == value) return false;
             }
         }
-        
+
         return true;
     }
 
     /**
      * Attempts to place a number on the board.
+     *
      * @param row target row.
      * @param col target column.
      * @param value number to place.
-     * @return false if the cell is fixed, true otherwise (even if the move is rule-invalid, to allow UI feedback).
+     * @return false if the cell is fixed, true otherwise (even if the move is rule-invalid, to
+     *     allow UI feedback).
      */
     public boolean placeNumber(int row, int col, int value) {
         if (fixedCells[row][col]) return false;
@@ -75,6 +77,7 @@ public class Sudoku {
 
     /**
      * Gets the current value at a cell.
+     *
      * @param row row index.
      * @param col col index.
      * @return value (0 for empty).
@@ -85,6 +88,7 @@ public class Sudoku {
 
     /**
      * Gets the solution value for a cell (used for hints).
+     *
      * @param row row index.
      * @param col col index.
      * @return the correct solution value.
@@ -95,6 +99,7 @@ public class Sudoku {
 
     /**
      * Internal use: sets the solution value for a cell during generation.
+     *
      * @param row row.
      * @param col col.
      * @param value correct value.
@@ -105,6 +110,7 @@ public class Sudoku {
 
     /**
      * Overwrites the entire board state.
+     *
      * @param board 2D array of integers.
      */
     public void setBoard(int[][] board) {
@@ -113,6 +119,7 @@ public class Sudoku {
 
     /**
      * Marks a cell as fixed (initial clues).
+     *
      * @param row row.
      * @param col col.
      * @param fixed true to lock the cell.
@@ -123,6 +130,7 @@ public class Sudoku {
 
     /**
      * Checks if a cell is fixed.
+     *
      * @param row row index.
      * @param col col index.
      * @return true if locked.
@@ -133,6 +141,7 @@ public class Sudoku {
 
     /**
      * Verifies if the board is completely filled and valid.
+     *
      * @return true if the puzzle is correctly solved.
      */
     public boolean isResolved() {
@@ -148,8 +157,9 @@ public class Sudoku {
     }
 
     /**
-     * Counts the number of solutions for the current board state.
-     * Used to ensure uniqueness during generation.
+     * Counts the number of solutions for the current board state. Used to ensure uniqueness during
+     * generation.
+     *
      * @return the number of solutions found (capped at 2 for performance).
      */
     public int countSolutions() {
@@ -212,9 +222,7 @@ public class Sudoku {
         }
     }
 
-    /**
-     * Clears all cells, solution, and fixed status.
-     */
+    /** Clears all cells, solution, and fixed status. */
     public void clear() {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {

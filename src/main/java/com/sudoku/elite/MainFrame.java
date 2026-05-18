@@ -1,11 +1,9 @@
 package com.sudoku.elite;
 
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
-/**
- * Main Premium Application Frame for Sudoku Elite.
- */
+/** Main Premium Application Frame for Sudoku Elite. */
 public class MainFrame extends JFrame {
     private final GameController controller;
     private final SudokuBoardPanel boardPanel;
@@ -31,7 +29,8 @@ public class MainFrame extends JFrame {
 
     public MainFrame() {
         this.controller = new GameController();
-        this.boardPanel = new SudokuBoardPanel(controller.getSudoku(), controller.getCommandManager());
+        this.boardPanel =
+                new SudokuBoardPanel(controller.getSudoku(), controller.getCommandManager());
         this.controller.getCommandManager().setOnUpdate(boardPanel::updateBoard);
 
         setTitle(LanguageManager.getInstance().getString("app.title"));
@@ -41,12 +40,12 @@ public class MainFrame extends JFrame {
         getContentPane().setBackground(new Color(33, 33, 33));
 
         setLayout(new BorderLayout());
-        
+
         // Setup Components
         add(createHeader(), BorderLayout.NORTH);
         add(boardPanel, BorderLayout.CENTER);
         add(createSidePanel(), BorderLayout.EAST);
-        
+
         // KeyBindings
         setupKeyBindings();
 
@@ -55,15 +54,16 @@ public class MainFrame extends JFrame {
         boardPanel.updateBoard();
 
         // Prompt for login after UI is shown if not in offline mode
-        SwingUtilities.invokeLater(() -> {
-            if (!DatabaseConnection.isOfflineMode()) {
-                showLogin();
-            } else {
-                saveBtn.setEnabled(false);
-                loadBtn.setEnabled(false);
-                rankingBtn.setEnabled(false);
-            }
-        });
+        SwingUtilities.invokeLater(
+                () -> {
+                    if (!DatabaseConnection.isOfflineMode()) {
+                        showLogin();
+                    } else {
+                        saveBtn.setEnabled(false);
+                        loadBtn.setEnabled(false);
+                        rankingBtn.setEnabled(false);
+                    }
+                });
     }
 
     private JPanel createHeader() {
@@ -73,20 +73,23 @@ public class MainFrame extends JFrame {
         headerTitleLabel.setFont(new Font("Inter", Font.BOLD, 32));
         headerTitleLabel.setForeground(new Color(100, 180, 255));
         header.add(headerTitleLabel);
-        
+
         timerLabel = new JLabel("00:00");
         timerLabel.setFont(new Font("Inter", Font.BOLD, 24));
         timerLabel.setForeground(Color.WHITE);
         header.add(Box.createHorizontalStrut(50));
         header.add(timerLabel);
-        
-        gameTimer = new Timer(1000, e -> {
-            secondsElapsed++;
-            int m = secondsElapsed / 60;
-            int s = secondsElapsed % 60;
-            timerLabel.setText(String.format("%02d:%02d", m, s));
-        });
-        
+
+        gameTimer =
+                new Timer(
+                        1000,
+                        e -> {
+                            secondsElapsed++;
+                            int m = secondsElapsed / 60;
+                            int s = secondsElapsed % 60;
+                            timerLabel.setText(String.format("%02d:%02d", m, s));
+                        });
+
         return header;
     }
 
@@ -99,45 +102,58 @@ public class MainFrame extends JFrame {
 
         newGameBtn = createStyledButton(LanguageManager.getInstance().getString("btn.new_game"));
         saveBtn = createStyledButton(LanguageManager.getInstance().getString("btn.save_game"));
-        loadBtn = createStyledButton(LanguageManager.getInstance().getString("btn.load_game") == null ? "Load Game" : LanguageManager.getInstance().getString("btn.load_game"));
+        loadBtn =
+                createStyledButton(
+                        LanguageManager.getInstance().getString("btn.load_game") == null
+                                ? "Load Game"
+                                : LanguageManager.getInstance().getString("btn.load_game"));
         rankingBtn = createStyledButton(LanguageManager.getInstance().getString("btn.rankings"));
-        
+
         themeSelect = new JComboBox<>(SudokuTheme.values());
         themeSelect.setMaximumSize(new Dimension(200, 40));
-        themeSelect.addActionListener(e -> {
-            SudokuTheme theme = (SudokuTheme) themeSelect.getSelectedItem();
-            applyGlobalTheme(theme);
-        });
-        
-        diffSelect = new JComboBox<>(new String[]{
-            LanguageManager.getInstance().getString("diff.easy"),
-            LanguageManager.getInstance().getString("diff.medium"),
-            LanguageManager.getInstance().getString("diff.hard"),
-            "Custom..."
-        });
+        themeSelect.addActionListener(
+                e -> {
+                    SudokuTheme theme = (SudokuTheme) themeSelect.getSelectedItem();
+                    applyGlobalTheme(theme);
+                });
+
+        diffSelect =
+                new JComboBox<>(
+                        new String[] {
+                            LanguageManager.getInstance().getString("diff.easy"),
+                            LanguageManager.getInstance().getString("diff.medium"),
+                            LanguageManager.getInstance().getString("diff.hard"),
+                            "Custom..."
+                        });
         diffSelect.setMaximumSize(new Dimension(200, 40));
 
-        newGameBtn.addActionListener(e -> {
-            newGameBtn.setEnabled(false);
-            newGameBtn.setText(LanguageManager.getInstance().getString("btn.generating"));
-            
-            String diff;
-            int idx = diffSelect.getSelectedIndex();
-            if (idx == 1) diff = "medium";
-            else if (idx == 2) diff = "hard";
-            else if (idx == 3) {
-                String input = JOptionPane.showInputDialog(MainFrame.this, "Cantidad de pistas iniciales (17-64):", "Custom", JOptionPane.QUESTION_MESSAGE);
-                if (input == null || input.trim().isEmpty()) { 
-                    newGameBtn.setEnabled(true); 
-                    newGameBtn.setText(LanguageManager.getInstance().getString("btn.new_game")); 
-                    return; 
-                }
-                diff = "custom:" + input;
-            }
-            else diff = "easy";
-            
-            startNewGame(diff);
-        });
+        newGameBtn.addActionListener(
+                e -> {
+                    newGameBtn.setEnabled(false);
+                    newGameBtn.setText(LanguageManager.getInstance().getString("btn.generating"));
+
+                    String diff;
+                    int idx = diffSelect.getSelectedIndex();
+                    if (idx == 1) diff = "medium";
+                    else if (idx == 2) diff = "hard";
+                    else if (idx == 3) {
+                        String input =
+                                JOptionPane.showInputDialog(
+                                        MainFrame.this,
+                                        "Cantidad de pistas iniciales (17-64):",
+                                        "Custom",
+                                        JOptionPane.QUESTION_MESSAGE);
+                        if (input == null || input.trim().isEmpty()) {
+                            newGameBtn.setEnabled(true);
+                            newGameBtn.setText(
+                                    LanguageManager.getInstance().getString("btn.new_game"));
+                            return;
+                        }
+                        diff = "custom:" + input;
+                    } else diff = "easy";
+
+                    startNewGame(diff);
+                });
 
         saveBtn.addActionListener(e -> handleSave());
         loadBtn.addActionListener(e -> handleLoad());
@@ -148,45 +164,58 @@ public class MainFrame extends JFrame {
         undoBtn.setBackground(new Color(200, 200, 200));
         redoBtn.setBackground(new Color(200, 200, 200));
 
-        undoBtn.addActionListener(e -> { if (undoBtn.isEnabled()) controller.undo(); });
-        redoBtn.addActionListener(e -> { if (redoBtn.isEnabled()) controller.redo(); });
+        undoBtn.addActionListener(
+                e -> {
+                    if (undoBtn.isEnabled()) controller.undo();
+                });
+        redoBtn.addActionListener(
+                e -> {
+                    if (redoBtn.isEnabled()) controller.redo();
+                });
 
-        this.controller.getCommandManager().setOnUpdate(() -> {
-            boardPanel.updateBoard();
-            updateButtonStates();
-        });
+        this.controller
+                .getCommandManager()
+                .setOnUpdate(
+                        () -> {
+                            boardPanel.updateBoard();
+                            updateButtonStates();
+                        });
         updateButtonStates();
 
         hintBtn = createStyledButton(LanguageManager.getInstance().getString("btn.hint"));
         hintBtn.setBackground(new Color(255, 200, 100));
 
-        hintBtn.addActionListener(e -> {
-            int[] hint = controller.getHint();
-            if (hint != null) {
-                int row = hint[0];
-                int col = hint[1];
-                int val = hint[2];
-                JOptionPane.showMessageDialog(this, 
-                    LanguageManager.getInstance().getString("msg.hint_text", val, (row+1), (col+1)), 
-                    LanguageManager.getInstance().getString("msg.hint_title"), 
-                    JOptionPane.INFORMATION_MESSAGE);
-            }
-        });
+        hintBtn.addActionListener(
+                e -> {
+                    int[] hint = controller.getHint();
+                    if (hint != null) {
+                        int row = hint[0];
+                        int col = hint[1];
+                        int val = hint[2];
+                        JOptionPane.showMessageDialog(
+                                this,
+                                LanguageManager.getInstance()
+                                        .getString("msg.hint_text", val, (row + 1), (col + 1)),
+                                LanguageManager.getInstance().getString("msg.hint_title"),
+                                JOptionPane.INFORMATION_MESSAGE);
+                    }
+                });
 
-        langSelect = new JComboBox<>(new String[]{"Español", "English"});
+        langSelect = new JComboBox<>(new String[] {"Español", "English"});
         langSelect.setMaximumSize(new Dimension(200, 40));
-        langSelect.addActionListener(e -> {
-            String code = langSelect.getSelectedIndex() == 0 ? "es" : "en";
-            LanguageManager.getInstance().setLanguage(code);
-            updateTexts();
-        });
+        langSelect.addActionListener(
+                e -> {
+                    String code = langSelect.getSelectedIndex() == 0 ? "es" : "en";
+                    LanguageManager.getInstance().setLanguage(code);
+                    updateTexts();
+                });
 
         themeLabel = new JLabel(LanguageManager.getInstance().getString("side.theme"));
         side.add(themeLabel);
         side.add(Box.createRigidArea(new Dimension(0, 5)));
         side.add(themeSelect);
         side.add(Box.createRigidArea(new Dimension(0, 20)));
-        
+
         difficultyLabel = new JLabel(LanguageManager.getInstance().getString("side.difficulty"));
         side.add(difficultyLabel);
         side.add(Box.createRigidArea(new Dimension(0, 5)));
@@ -244,61 +273,86 @@ public class MainFrame extends JFrame {
         }
         boardPanel.applyTheme(theme);
     }
-    
+
     private void startNewGame(final String difficulty) {
         newGameBtn.setEnabled(false);
         newGameBtn.setText(LanguageManager.getInstance().getString("btn.generating"));
         if (gameTimer != null) gameTimer.stop();
-        
-        SwingWorker<Void, Void> worker = new SwingWorker<>() {
-            @Override
-            protected Void doInBackground() {
-                controller.newGame(difficulty);
-                return null;
-            }
-            @Override
-            protected void done() {
-                boardPanel.animateGeneration();
-                newGameBtn.setEnabled(true);
-                newGameBtn.setText(LanguageManager.getInstance().getString("btn.new_game"));
-                secondsElapsed = 0;
-                if (timerLabel != null) timerLabel.setText("00:00");
-                if (gameTimer != null) gameTimer.restart();
-                updateButtonStates();
-            }
-        };
+
+        SwingWorker<Void, Void> worker =
+                new SwingWorker<>() {
+                    @Override
+                    protected Void doInBackground() {
+                        controller.newGame(difficulty);
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        boardPanel.animateGeneration();
+                        newGameBtn.setEnabled(true);
+                        newGameBtn.setText(LanguageManager.getInstance().getString("btn.new_game"));
+                        secondsElapsed = 0;
+                        if (timerLabel != null) timerLabel.setText("00:00");
+                        if (gameTimer != null) gameTimer.restart();
+                        updateButtonStates();
+                    }
+                };
         worker.execute();
     }
 
     private void updateButtonStates() {
         if (undoBtn != null) {
             undoBtn.setEnabled(controller.getCommandManager().canUndo());
-            undoBtn.setBackground(undoBtn.isEnabled() ? new Color(200, 200, 200) : new Color(100, 100, 100));
+            undoBtn.setBackground(
+                    undoBtn.isEnabled() ? new Color(200, 200, 200) : new Color(100, 100, 100));
         }
         if (redoBtn != null) {
             redoBtn.setEnabled(controller.getCommandManager().canRedo());
-            redoBtn.setBackground(redoBtn.isEnabled() ? new Color(200, 200, 200) : new Color(100, 100, 100));
+            redoBtn.setBackground(
+                    redoBtn.isEnabled() ? new Color(200, 200, 200) : new Color(100, 100, 100));
         }
     }
-    
+
     private void setupKeyBindings() {
         InputMap im = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = getRootPane().getActionMap();
-        
-        im.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_DOWN_MASK), "Undo");
-        am.put("Undo", new AbstractAction() {
-            public void actionPerformed(java.awt.event.ActionEvent e) { if (undoBtn.isEnabled()) controller.undo(); }
-        });
-        
-        im.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_DOWN_MASK), "Redo");
-        am.put("Redo", new AbstractAction() {
-            public void actionPerformed(java.awt.event.ActionEvent e) { if (redoBtn.isEnabled()) controller.redo(); }
-        });
-        
-        im.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_DOWN_MASK), "New");
-        am.put("New", new AbstractAction() {
-            public void actionPerformed(java.awt.event.ActionEvent e) { if (newGameBtn.isEnabled()) newGameBtn.doClick(); }
-        });
+
+        im.put(
+                KeyStroke.getKeyStroke(
+                        java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_DOWN_MASK),
+                "Undo");
+        am.put(
+                "Undo",
+                new AbstractAction() {
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
+                        if (undoBtn.isEnabled()) controller.undo();
+                    }
+                });
+
+        im.put(
+                KeyStroke.getKeyStroke(
+                        java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_DOWN_MASK),
+                "Redo");
+        am.put(
+                "Redo",
+                new AbstractAction() {
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
+                        if (redoBtn.isEnabled()) controller.redo();
+                    }
+                });
+
+        im.put(
+                KeyStroke.getKeyStroke(
+                        java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_DOWN_MASK),
+                "New");
+        am.put(
+                "New",
+                new AbstractAction() {
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
+                        if (newGameBtn.isEnabled()) newGameBtn.doClick();
+                    }
+                });
     }
 
     private JButton createStyledButton(String text) {
@@ -316,48 +370,72 @@ public class MainFrame extends JFrame {
         LoginDialog dialog = new LoginDialog(this);
         dialog.setVisible(true);
         if (dialog.getAuthenticatedUserId() != -1) {
-            controller.setCurrentUser(dialog.getAuthenticatedUserId(), dialog.getAuthenticatedUsername());
+            controller.setCurrentUser(
+                    dialog.getAuthenticatedUserId(), dialog.getAuthenticatedUsername());
             headerTitleLabel.setText("Sudoku Elite - " + controller.getCurrentUsername());
         }
     }
 
     private void handleSave() {
         if (controller.getCurrentUserId() == -1) {
-            JOptionPane.showMessageDialog(this, "Please login to save your progress.", "Session Required", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please login to save your progress.",
+                    "Session Required",
+                    JOptionPane.WARNING_MESSAGE);
             showLogin();
             return;
         }
         try {
             int idx = diffSelect.getSelectedIndex();
-            String diff = switch (idx) {
-                case 1 -> "medium";
-                case 2 -> "hard";
-                default -> "easy";
-            };
+            String diff =
+                    switch (idx) {
+                        case 1 -> "medium";
+                        case 2 -> "hard";
+                        default -> "easy";
+                    };
             controller.saveGame(diff);
-            JOptionPane.showMessageDialog(this, LanguageManager.getInstance().getString("msg.game_saved"));
+            JOptionPane.showMessageDialog(
+                    this, LanguageManager.getInstance().getString("msg.game_saved"));
         } catch (java.sql.SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Failed to save: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Failed to save: " + ex.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void handleLoad() {
         if (controller.getCurrentUserId() == -1) {
-            JOptionPane.showMessageDialog(this, "Please login to load your progress.", "Session Required", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please login to load your progress.",
+                    "Session Required",
+                    JOptionPane.WARNING_MESSAGE);
             showLogin();
             return;
         }
         try {
             String loadedDiff = controller.loadGame();
             if (loadedDiff != null) {
-                diffSelect.setSelectedIndex(loadedDiff.equals("hard") ? 2 : (loadedDiff.equals("medium") ? 1 : 0));
+                diffSelect.setSelectedIndex(
+                        loadedDiff.equals("hard") ? 2 : (loadedDiff.equals("medium") ? 1 : 0));
                 boardPanel.updateBoard();
                 JOptionPane.showMessageDialog(this, "Game loaded successfully!");
             } else {
-                JOptionPane.showMessageDialog(this, "No saved game found for this user.", "Info", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(
+                        this,
+                        "No saved game found for this user.",
+                        "Info",
+                        JOptionPane.INFORMATION_MESSAGE);
             }
         } catch (java.sql.SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Failed to load: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Failed to load: " + ex.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -365,12 +443,17 @@ public class MainFrame extends JFrame {
         try {
             var tops = controller.getTopRankings();
             String list = String.join("\n", tops);
-            JOptionPane.showMessageDialog(this, 
-                tops.isEmpty() ? LanguageManager.getInstance().getString("msg.no_scores") : list, 
-                LanguageManager.getInstance().getString("msg.rankings_title"), 
-                JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this,
+                    tops.isEmpty()
+                            ? LanguageManager.getInstance().getString("msg.no_scores")
+                            : list,
+                    LanguageManager.getInstance().getString("msg.rankings_title"),
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, LanguageManager.getInstance().getString("msg.rank_error", e.getMessage()));
+            JOptionPane.showMessageDialog(
+                    this,
+                    LanguageManager.getInstance().getString("msg.rank_error", e.getMessage()));
         }
     }
 
@@ -387,7 +470,7 @@ public class MainFrame extends JFrame {
         undoBtn.setText(lm.getString("btn.undo"));
         redoBtn.setText(lm.getString("btn.redo"));
         hintBtn.setText(lm.getString("btn.hint"));
-        
+
         // Update Difficulty ComboBox items
         int selectedDiff = diffSelect.getSelectedIndex();
         diffSelect.removeAllItems();
@@ -407,46 +490,53 @@ public class MainFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame loading = new JFrame("Sudoku Elite");
-            loading.setSize(400, 100);
-            loading.setLocationRelativeTo(null);
-            loading.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            JLabel loadingLabel = new JLabel("Connecting to database... Please wait.", SwingConstants.CENTER);
-            loadingLabel.setFont(new Font("Inter", Font.BOLD, 14));
-            loading.add(loadingLabel);
-            loading.setVisible(true);
+        SwingUtilities.invokeLater(
+                () -> {
+                    JFrame loading = new JFrame("Sudoku Elite");
+                    loading.setSize(400, 100);
+                    loading.setLocationRelativeTo(null);
+                    loading.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    JLabel loadingLabel =
+                            new JLabel(
+                                    "Connecting to database... Please wait.",
+                                    SwingConstants.CENTER);
+                    loadingLabel.setFont(new Font("Inter", Font.BOLD, 14));
+                    loading.add(loadingLabel);
+                    loading.setVisible(true);
 
-            new SwingWorker<Void, Void>() {
-                @Override
-                protected Void doInBackground() {
-                    try {
-                        // Initialize database pool in background thread
-                        Class.forName("com.sudoku.elite.DatabaseConnection");
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                }
+                    new SwingWorker<Void, Void>() {
+                        @Override
+                        protected Void doInBackground() {
+                            try {
+                                // Initialize database pool in background thread
+                                Class.forName("com.sudoku.elite.DatabaseConnection");
+                            } catch (ClassNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            return null;
+                        }
 
-                @Override
-                protected void done() {
-                    loading.dispose();
-                    MainFrame frame = new MainFrame();
-                    
-                    if (DatabaseConnection.isOfflineMode()) {
-                        frame.setTitle(frame.getTitle() + " [OFFLINE MODE]");
-                        frame.headerTitleLabel.setText(frame.headerTitleLabel.getText() + " (Offline)");
-                        frame.headerTitleLabel.setForeground(new Color(255, 100, 100)); // Red for offline
-                        JOptionPane.showMessageDialog(frame, 
-                            "Remote database unavailable.\nRunning in Local Offline Mode.", 
-                            "Offline Mode", 
-                            JOptionPane.WARNING_MESSAGE);
-                    }
-                    
-                    frame.setVisible(true);
-                }
-            }.execute();
-        });
+                        @Override
+                        protected void done() {
+                            loading.dispose();
+                            MainFrame frame = new MainFrame();
+
+                            if (DatabaseConnection.isOfflineMode()) {
+                                frame.setTitle(frame.getTitle() + " [OFFLINE MODE]");
+                                frame.headerTitleLabel.setText(
+                                        frame.headerTitleLabel.getText() + " (Offline)");
+                                frame.headerTitleLabel.setForeground(
+                                        new Color(255, 100, 100)); // Red for offline
+                                JOptionPane.showMessageDialog(
+                                        frame,
+                                        "Remote database unavailable.\nRunning in Local Offline Mode.",
+                                        "Offline Mode",
+                                        JOptionPane.WARNING_MESSAGE);
+                            }
+
+                            frame.setVisible(true);
+                        }
+                    }.execute();
+                });
     }
 }

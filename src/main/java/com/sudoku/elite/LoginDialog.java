@@ -1,13 +1,11 @@
 package com.sudoku.elite;
 
-import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.Optional;
+import javax.swing.*;
 
-/**
- * Dialog for User Login and Registration.
- */
+/** Dialog for User Login and Registration. */
 public class LoginDialog extends JDialog {
     private JTextField usernameField;
     private JPasswordField passwordField;
@@ -61,10 +59,12 @@ public class LoginDialog extends JDialog {
                 authenticatedUsername = username;
                 dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "Invalid credentials.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(
+                        this, "Invalid credentials.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -73,7 +73,8 @@ public class LoginDialog extends JDialog {
         String password = new String(passwordField.getPassword());
 
         if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Fields cannot be empty.", "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this, "Fields cannot be empty.", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -82,10 +83,15 @@ public class LoginDialog extends JDialog {
             if (userId != -1) {
                 JOptionPane.showMessageDialog(this, "Account created successfully! Please login.");
             } else {
-                JOptionPane.showMessageDialog(this, "Username already exists or error occurred.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Username already exists or error occurred.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

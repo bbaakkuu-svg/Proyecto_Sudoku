@@ -1,11 +1,10 @@
 package com.sudoku.elite;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Basic tests for MainFrame.
- */
+import org.junit.jupiter.api.Test;
+
+/** Basic tests for MainFrame. */
 public class MainFrameTest {
 
     @Test
