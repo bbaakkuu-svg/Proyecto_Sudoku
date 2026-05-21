@@ -26,6 +26,13 @@ if ([string]::IsNullOrWhiteSpace($scope)) {
 }
 
 $description = Read-Host "Descripcion del cambio en Ingles Tecnico"
+
+$issueNum = Read-Host "¿Cierra algun Issue? (Opcional, Nro:)"
+if (-not [string]::IsNullOrWhiteSpace($issueNum)) {
+    $issueNum = $issueNum -replace '#', ''
+    $description = "$description (Closes #$issueNum)"
+}
+
 $mensaje = "$commitPrefix $description"
 Write-WFLog "Commit ensamblado: '$mensaje'" "Cyan"
 
@@ -44,14 +51,36 @@ foreach ($word in $WFConfig.commit_lint.forbidden_words) {
     }
 }
 
-# 3. Auto-Formateo de Codigo
-Write-WFLog "--- APLICANDO FORMATO GOOGLE JAVA ---" "Cyan"
-mvn spotless:apply -q
+# 3. Escaneo de Secretos (Security Gate)
+Write-WFLog "--- ESCANEANDO SECRETOS LOCALES ---" "Yellow"
+$modifiedFiles = git diff --name-only
+$untrackedFiles = git ls-files --others --exclude-standard
+$allFilesToScan = $modifiedFiles + $untrackedFiles | Sort-Object -Unique
+
+foreach ($file in $allFilesToScan) {
+    if (Test-Path $file) {
+        $content = Get-Content $file -Raw
+        foreach ($pattern in $WFConfig.security_scanner.blocked_patterns) {
+            if ($content -match $pattern) {
+                Write-WFLog "ERROR DE SEGURIDAD CRITICO: Posible secreto detectado." "Red"
+                Write-WFLog "Archivo: $file" "Red"
+                Write-WFLog "Patron bloqueado: $pattern" "Yellow"
+                Write-WFLog "Accion: El commit ha sido cancelado para proteger tus credenciales." "Red"
+                exit 1
+            }
+        }
+    }
+}
+Write-WFLog "Ningun secreto detectado. Codigo limpio." "Green"
+
+# 4. Auto-Formateo de Codigo
+Write-WFLog "--- APLICANDO FORMATADOR ($($WFConfig.tech_stack.language.ToUpper())) ---" "Cyan"
+Invoke-Expression $WFConfig.tech_stack.format_command
 Write-WFLog "Codigo estandarizado y limpio." "Green"
 
-# 4. Validar Tests Locales (Pre-Push Gate)
+# 5. Validar Tests Locales (Pre-Push Gate)
 Write-WFLog "--- EJECUTANDO TESTS LOCALES (Fail-Fast) ---" "Yellow"
-mvn test -q
+Invoke-Expression $WFConfig.tech_stack.test_command
 if ($LASTEXITCODE -ne 0) {
     Write-WFLog "ERROR: Los tests unitarios han fallado." "Red"
     Write-WFLog "Accion: El commit ha sido cancelado. Corrige el codigo localmente y vuelve a intentar para proteger la rama remota." "Yellow"
@@ -59,7 +88,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-WFLog "Tests locales superados exitosamente." "Green"
 
-# 4. Proceso de Git
+# 6. Proceso de Git
 Write-WFLog "--- LINT Y TESTS PASADOS CON EXITO ---" "Green"
 git add .
 git commit -m $mensaje

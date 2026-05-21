@@ -13,11 +13,11 @@ permissions:
   id-token: write
 
 jobs:
-  quality-gate:
-    name: "QA & Documentation"
+  test-and-coverage:
+    name: "Tests & JaCoCo Coverage"
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout CÃ³digo
+      - name: Checkout Codigo
         uses: actions/checkout@v4
 
       - name: Setup Java 17
@@ -30,17 +30,82 @@ jobs:
       - name: Ejecutar Pruebas y Cobertura (RA3)
         run: mvn clean test jacoco:report
 
+      - name: Subir Artefacto de Cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-coverage
+          path: target/site/jacoco/
+          retention-days: 1
+
+  javadoc:
+    name: "Javadoc Generation"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codigo
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
       - name: Generar Javadoc (RA4)
         run: mvn javadoc:javadoc
 
-      - name: Preparar Artefactos para GitHub Pages
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+      - name: Subir Artefacto de Javadoc
+        uses: actions/upload-artifact@v4
+        with:
+          name: apidocs
+          path: target/site/apidocs/
+          retention-days: 1
+
+  sast-analysis:
+    name: "CodeQL SAST Scanner"
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: 'java'
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Build Code
+        run: mvn clean package -DskipTests
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  deploy-staging:
+    name: "Deploy to Staging (QA)"
+    needs: [test-and-coverage, javadoc, sast-analysis]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Descargar Artefacto de Cobertura
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-coverage
+          path: public/coverage/
+
+      - name: Descargar Artefacto de Javadoc
+        uses: actions/download-artifact@v4
+        with:
+          name: apidocs
+          path: public/javadoc/
+
+      - name: Preparar Dashboard Principal
         run: |
-          mkdir -p public/coverage
-          mkdir -p public/javadoc
-          cp -r target/site/jacoco/* public/coverage/
-          cp -r target/site/apidocs/* public/javadoc/
-          # Página de inicio Premium para el QA Dashboard
           cat <<EOF > public/index.html
           <!DOCTYPE html>
           <html lang="es">
@@ -62,7 +127,7 @@ jobs:
           <body>
               <div class="container">
                   <h1>🧩 Sudoku Elite: QA Dashboard</h1>
-                  <p>Estado de Ingeniería y Calidad del Proyecto</p>
+                  <p>Estado de Ingeniería y Calidad del Proyecto (Paralelizado)</p>
                   <div class="links">
                       <a href="./javadoc/">API Documentation</a>
                       <a href="./coverage/">Coverage Report</a>
@@ -74,16 +139,80 @@ jobs:
           EOF
 
       - name: Configurar GitHub Pages
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
         uses: actions/configure-pages@v4
 
-      - name: Subir Artefacto
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+      - name: Subir Artefacto Consolidado a Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'public'
 
-      - name: Desplegar a GitHub Pages
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+      - name: Desplegar a GitHub Pages (Staging)
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  deploy-production:
+    name: "Deploy to Production"
+    needs: [test-and-coverage, javadoc, sast-analysis]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Descargar Artefacto de Cobertura
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-coverage
+          path: public/coverage/
+
+      - name: Descargar Artefacto de Javadoc
+        uses: actions/download-artifact@v4
+        with:
+          name: apidocs
+          path: public/javadoc/
+
+      - name: Preparar Dashboard Principal
+        run: |
+          cat <<EOF > public/index.html
+          <!DOCTYPE html>
+          <html lang="es">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Sudoku Elite - PRODUCCION</title>
+              <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+              <style>
+                  body { font-family: 'Inter', sans-serif; background-color: #121212; color: #e0e0e0; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+                  .container { background: #1e1e1e; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; border: 1px solid #333; }
+                  h1 { color: #50fa7b; font-size: 2rem; margin-bottom: 1.5rem; }
+                  .links { display: flex; gap: 1rem; justify-content: center; }
+                  a { text-decoration: none; color: #121212; background: #50fa7b; padding: 0.8rem 1.5rem; border-radius: 8px; font-weight: 700; transition: transform 0.2s, background 0.2s; }
+                  a:hover { background: #40c763; transform: translateY(-2px); }
+                  .footer { margin-top: 2rem; font-size: 0.8rem; color: #777; }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>🧩 Sudoku Elite: PRODUCCION</h1>
+                  <p>Sistema Operativo y Desplegado con Exito</p>
+                  <div class="links">
+                      <a href="./javadoc/">API Documentation</a>
+                      <a href="./coverage/">Coverage Report</a>
+                  </div>
+                  <div class="footer">Generado automáticamente mediante GitHub Actions • Antigravity Sincronización</div>
+              </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: Subir Artefacto Consolidado a Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'public'
+
+      - name: Desplegar a GitHub Pages (Production)
         id: deployment
         uses: actions/deploy-pages@v4
